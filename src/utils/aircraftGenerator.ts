@@ -22,27 +22,22 @@ export function generateAircraftPair(
     aircraft2 = createSingleAircraft(2);
     
     // Adjust speeds based on settings
-    const baseSpeedMin = settings.speedDiff === 'high' ? 350 : 380;
-    const baseSpeedMax = settings.speedDiff === 'high' ? 510 : 480;
+    const baseSpeedMin = 380;
+    const baseSpeedMax = 480;
     aircraft1.speedKnots = Math.floor(Math.random() * (baseSpeedMax - baseSpeedMin + 1)) + baseSpeedMin;
 
-    if (settings.speedDiff !== 'random') {
-      const sign = Math.random() < 0.5 ? -1 : 1;
-      let diff = 0;
-      switch (settings.speedDiff) {
-        case 'low':
-          diff = Math.floor(Math.random() * 30) + 1; // 1-30
-          break;
-        case 'medium':
-          diff = Math.floor(Math.random() * 30) + 31; // 31-60
-          break;
-        case 'high':
-          diff = Math.floor(Math.random() * 40) + 61; // 61-100
-          break;
-      }
-      aircraft2.speedKnots = aircraft1.speedKnots + (diff * sign);
+    // Calculate speed difference using min/max from settings
+    const minDiff = settings.speedDiffMin;
+    const maxDiff = settings.speedDiffMax;
+    
+    if (minDiff === 0 && maxDiff === 0) {
+      // No difference - same speed
+      aircraft2.speedKnots = aircraft1.speedKnots;
     } else {
-      aircraft2.speedKnots = Math.floor(Math.random() * (baseSpeedMax - baseSpeedMin + 1)) + baseSpeedMin;
+      // Apply a random speed difference within the configured range
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      const diff = Math.floor(Math.random() * (maxDiff - minDiff + 1)) + minDiff;
+      aircraft2.speedKnots = aircraft1.speedKnots + (diff * sign);
     }
 
     // Update speed in pixels/sec for both
@@ -83,7 +78,7 @@ export function generateAircraftPair(
     }
     const angleDiffDegrees = angleDiff * (180 / Math.PI);
 
-    angleOK = checkAngle(settings.angle, angleDiffDegrees);
+    angleOK = checkAngle(settings, angleDiffDegrees);
 
     // Calculate predicted closest approach
     const closestApproach = calculateClosestApproach(
@@ -161,19 +156,9 @@ function createSingleAircraft(id: number): Aircraft {
   };
 }
 
-function checkAngle(setting: string, angleDiffDegrees: number): boolean {
-  switch (setting) {
-    case 'random':
-      return true;
-    case 'sharp': // 20-55
-      return angleDiffDegrees >= 20 && angleDiffDegrees <= 55;
-    case 'crossing': // 55-140
-      return angleDiffDegrees > 55 && angleDiffDegrees <= 140;
-    case 'opposite': // 140-180
-      return angleDiffDegrees > 140 && angleDiffDegrees <= 180;
-    default:
-      return true;
-  }
+function checkAngle(settings: Settings, angleDiffDegrees: number): boolean {
+  // Use angleMin and angleMax from settings
+  return angleDiffDegrees >= settings.angleMin && angleDiffDegrees <= settings.angleMax;
 }
 
 function adjustTimeToCrossing(
@@ -191,28 +176,12 @@ function adjustTimeToCrossing(
   );
 
   if (cpa && cpa.time > 0) {
-    let targetTime: number;
+    // Use timeToCrossingMin and timeToCrossingMax from settings (convert minutes to seconds)
+    const minTimeSeconds = settings.timeToCrossingMin * 60;
+    const maxTimeSeconds = settings.timeToCrossingMax * 60;
     
-    if (settings.timeToCrossing !== 'random') {
-      switch (settings.timeToCrossing) {
-        case '<6':
-          targetTime = Math.random() * 180 + 180; // 3-6 mins
-          break;
-        case '6-9':
-          targetTime = Math.random() * 180 + 360; // 6-9 mins
-          break;
-        case '>9':
-          targetTime = Math.random() * 300 + 540; // 9-14 mins
-          break;
-        default:
-          targetTime = cpa.time;
-      }
-    } else {
-      // For random, adjust only if outside 3-14 minute range
-      const minTime = 180;
-      const maxTime = 840;
-      targetTime = Math.max(minTime, Math.min(maxTime, cpa.time));
-    }
+    // Generate a random target time within the configured range
+    const targetTime = Math.random() * (maxTimeSeconds - minTimeSeconds) + minTimeSeconds;
 
     const timeAdjustment = cpa.time - targetTime;
 

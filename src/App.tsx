@@ -1,18 +1,13 @@
 // Main App Component
 // Handles authentication and page routing
 
-import { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { GamePage } from './pages/GamePage';
-import { LeaderboardPage } from './pages/LeaderboardPage';
 import './App.css';
 
-type Page = 'game' | 'leaderboard';
-
 function App() {
-  const { user, loading, signIn, signOut } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>('game');
+  const { user, loading, signIn } = useAuth();
 
   // Show loading while checking auth state
   if (loading) {
@@ -29,22 +24,8 @@ function App() {
     return <LoginPage onLogin={signIn} />;
   }
 
-  // Show appropriate page based on navigation
-  if (currentPage === 'leaderboard') {
-    return (
-      <LeaderboardPage 
-        onBack={() => setCurrentPage('game')} 
-      />
-    );
-  }
-
-  // Default: show game page
-  return (
-    <GamePage
-      onShowLeaderboard={() => setCurrentPage('leaderboard')}
-      onLogout={signOut}
-    />
-  );
+  // Show game page
+  return <GamePage />;
 }
 
 export default App;

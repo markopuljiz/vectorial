@@ -9,12 +9,7 @@ import { SettingsModal } from '../components/SettingsModal';
 import { useGameState } from '../hooks/useGameState';
 import '../App.css';
 
-interface GamePageProps {
-  onShowLeaderboard: () => void;
-  onLogout: () => void;
-}
-
-export function GamePage({ onShowLeaderboard, onLogout }: GamePageProps) {
+export function GamePage() {
   const {
     aircraft,
     selectedAircraft,
@@ -24,56 +19,30 @@ export function GamePage({ onShowLeaderboard, onLogout }: GamePageProps) {
     selectAircraft,
     updateAircraftHeading,
     updateSettings,
-    newScenario
+    newScenario,
+    setPanOffset,
+    zoomIn,
+    zoomOut
   } = useGameState();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     newScenario();
   }, [newScenario]);
 
-  const handleZoomIn = () => {
-    console.log('Zoom in');
-  };
-
-  const handleZoomOut = () => {
-    console.log('Zoom out');
-  };
-
   const handleSettingsApply = (newSettings: typeof settings) => {
     updateSettings(newSettings);
-    setTimeout(() => newScenario(), 100);
+    // newScenario will be called automatically by the useEffect when settings change
   };
 
   return (
     <div className="app">
-      {/* Menu button */}
-      <button 
-        className="menu-button"
-        onClick={() => setShowMenu(!showMenu)}
-      >
-        ☰
-      </button>
-
-      {/* Dropdown menu */}
-      {showMenu && (
-        <div className="menu-dropdown">
-          <button onClick={() => { onShowLeaderboard(); setShowMenu(false); }}>
-            Leaderboard
-          </button>
-          <button onClick={() => { onLogout(); setShowMenu(false); }}>
-            Logout
-          </button>
-        </div>
-      )}
-
       <TopControls
         onNew={newScenario}
         onSettings={() => setIsSettingsOpen(true)}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
       />
       
       <RadarDisplay
@@ -81,10 +50,12 @@ export function GamePage({ onShowLeaderboard, onLogout }: GamePageProps) {
         selectedAircraft={selectedAircraft}
         onAircraftSelect={selectAircraft}
         panOffset={panOffset}
+        setPanOffset={setPanOffset}
         pixelsPerNM={pixelsPerNM}
       />
       
       <BottomControls
+        aircraft={aircraft}
         selectedAircraft={selectedAircraft}
         onHeadingChange={updateAircraftHeading}
       />

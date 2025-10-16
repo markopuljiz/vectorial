@@ -16,8 +16,14 @@ export function useGameState() {
   
   const [settings, setSettings] = useState<Settings>({
     speedDiff: 'random',
+    speedDiffMin: 0,
+    speedDiffMax: 150,
     angle: 'random',
-    timeToCrossing: 'random'
+    angleMin: 20,
+    angleMax: 180,
+    timeToCrossing: 'random',
+    timeToCrossingMin: 3,
+    timeToCrossingMax: 12
   });
 
   // useCallback memoizes functions so they don't get recreated on every render
@@ -73,6 +79,62 @@ export function useGameState() {
     setSettings(prev => ({ ...prev, ...newSettings }));
   }, []);
 
+  const zoomIn = useCallback(() => {
+    const zoomFactor = 1.2; // 20% zoom in
+    const newPixelsPerNM = pixelsPerNM * zoomFactor;
+    
+    // Get center of screen
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Scale aircraft positions
+    setAircraft(prev => prev.map(ac => ({
+      ...ac,
+      x: centerX + (ac.x - centerX) * zoomFactor,
+      y: centerY + (ac.y - centerY) * zoomFactor,
+      history: ac.history.map(pos => ({
+        x: centerX + (pos.x - centerX) * zoomFactor,
+        y: centerY + (pos.y - centerY) * zoomFactor
+      }))
+    })));
+    
+    // Scale pan offset
+    setPanOffset(prev => ({
+      x: prev.x * zoomFactor,
+      y: prev.y * zoomFactor
+    }));
+    
+    setPixelsPerNM(newPixelsPerNM);
+  }, [pixelsPerNM]);
+
+  const zoomOut = useCallback(() => {
+    const zoomFactor = 1 / 1.2; // 20% zoom out
+    const newPixelsPerNM = pixelsPerNM * zoomFactor;
+    
+    // Get center of screen
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Scale aircraft positions
+    setAircraft(prev => prev.map(ac => ({
+      ...ac,
+      x: centerX + (ac.x - centerX) * zoomFactor,
+      y: centerY + (ac.y - centerY) * zoomFactor,
+      history: ac.history.map(pos => ({
+        x: centerX + (pos.x - centerX) * zoomFactor,
+        y: centerY + (pos.y - centerY) * zoomFactor
+      }))
+    })));
+    
+    // Scale pan offset
+    setPanOffset(prev => ({
+      x: prev.x * zoomFactor,
+      y: prev.y * zoomFactor
+    }));
+    
+    setPixelsPerNM(newPixelsPerNM);
+  }, [pixelsPerNM]);
+
   return {
     aircraft,
     selectedAircraft,
@@ -84,6 +146,8 @@ export function useGameState() {
     updateAircraftHeading,
     updateSettings,
     newScenario,
-    setPanOffset
+    setPanOffset,
+    zoomIn,
+    zoomOut
   };
 }

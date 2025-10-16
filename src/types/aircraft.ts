@@ -23,9 +23,15 @@ export interface Position {
 }
 
 export interface Settings {
-  speedDiff: 'random' | 'low' | 'medium' | 'high';
-  angle: 'random' | 'sharp' | 'crossing' | 'opposite';
-  timeToCrossing: 'random' | '<6' | '6-9' | '>9';
+  speedDiff: 'random' | 'low' | 'medium' | 'high' | 'custom';
+  speedDiffMin: number; // knots
+  speedDiffMax: number; // knots
+  angle: 'random' | 'sharp' | 'crossing' | 'opposite' | 'custom';
+  angleMin: number; // degrees
+  angleMax: number; // degrees
+  timeToCrossing: 'random' | '<6' | '6-9' | '>9' | 'custom';
+  timeToCrossingMin: number; // minutes
+  timeToCrossingMax: number; // minutes
 }
 
 export interface ClosestApproach {

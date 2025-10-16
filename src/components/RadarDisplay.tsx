@@ -3,13 +3,14 @@
 
 import { Aircraft, Position } from '../types/aircraft';
 import { calculateClosestApproach, calculateDistance } from '../utils/physics';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 interface RadarDisplayProps {
   aircraft: Aircraft[];
   selectedAircraft: Aircraft | null;
   onAircraftSelect: (aircraft: Aircraft) => void;
   panOffset: Position;
+  setPanOffset: (offset: Position) => void;
   pixelsPerNM: number;
 }
 
@@ -17,9 +18,77 @@ export function RadarDisplay({
   aircraft, 
   onAircraftSelect, 
   panOffset,
+  setPanOffset,
   pixelsPerNM 
 }: RadarDisplayProps) {
   const [sepLabelPosition, setSepLabelPosition] = useState(0);
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const dragStartOffset = useRef({ x: 0, y: 0 });
+
+  // Handle drag start
+  const handleDragStart = useCallback((clientX: number, clientY: number) => {
+    isDragging.current = true;
+    dragStart.current = { x: clientX, y: clientY };
+    dragStartOffset.current = { ...panOffset };
+  }, [panOffset]);
+
+  // Handle drag move
+  const handleDragMove = useCallback((clientX: number, clientY: number) => {
+    if (!isDragging.current) return;
+    
+    const deltaX = clientX - dragStart.current.x;
+    const deltaY = clientY - dragStart.current.y;
+    
+    setPanOffset({
+      x: dragStartOffset.current.x + deltaX,
+      y: dragStartOffset.current.y + deltaY
+    });
+  }, [setPanOffset]);
+
+  // Handle drag end
+  const handleDragEnd = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  // Mouse events
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // Only drag on primary mouse button and not on labels/interactive elements
+    const target = e.target as HTMLElement;
+    const isClickableElement = target.classList.contains('track-label') || 
+                                target.classList.contains('sep-label');
+    
+    if (e.button === 0 && !isClickableElement) {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    }
+  }, [handleDragStart]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    handleDragMove(e.clientX, e.clientY);
+  }, [handleDragMove]);
+
+  // Touch events
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const target = e.target as HTMLElement;
+      const isClickableElement = target.classList.contains('track-label') || 
+                                  target.classList.contains('sep-label');
+      
+      if (!isClickableElement) {
+        const touch = e.touches[0];
+        handleDragStart(touch.clientX, touch.clientY);
+      }
+    }
+  }, [handleDragStart]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleDragMove(touch.clientX, touch.clientY);
+    }
+  }, [handleDragMove]);
 
   const renderAircraft = (ac: Aircraft) => (
     <div
@@ -168,7 +237,17 @@ export function RadarDisplay({
   };
 
   return (
-    <div className="radar-display">
+    <div 
+      className="radar-display"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleDragEnd}
+      onMouseLeave={handleDragEnd}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleDragEnd}
+      onTouchCancel={handleDragEnd}
+    >
       {renderHistoryDots()}
       {renderSEPTool()}
       {aircraft.map(renderAircraft)}

@@ -1,38 +1,52 @@
 // Bottom controls with heading slider
-// Shows selected aircraft and allows heading changes
+// Shows all aircraft commands and allows heading changes
 
 import { Aircraft } from '../types/aircraft';
 
 interface BottomControlsProps {
+  aircraft: Aircraft[];
   selectedAircraft: Aircraft | null;
   onHeadingChange: (degrees: number) => void;
 }
 
-export function BottomControls({ selectedAircraft, onHeadingChange }: BottomControlsProps) {
+export function BottomControls({ aircraft, selectedAircraft, onHeadingChange }: BottomControlsProps) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     onHeadingChange(value);
   };
 
-  const getCommandText = () => {
-    if (!selectedAircraft) {
-      return 'Select an aircraft to issue turn command';
-    }
+  const getCommandText = (ac: Aircraft, isSelected: boolean) => {
+    const turnDegrees = ac.pendingTurn;
     
-    const turnDegrees = selectedAircraft.pendingTurn;
+    // If no turn command, show "CALLSIGN..."
     if (turnDegrees === 0) {
-      return `${selectedAircraft.callsign} - No turn command`;
+      return (
+        <div key={ac.id} className={isSelected ? 'command-line selected' : 'command-line'}>
+          {ac.callsign}...
+        </div>
+      );
     }
     
     const direction = turnDegrees > 0 ? 'right' : 'left';
     const absTurn = Math.abs(turnDegrees);
     
-    return `${selectedAircraft.callsign} turn ${direction} ${absTurn} degrees`;
+    return (
+      <div key={ac.id} className={isSelected ? 'command-line selected' : 'command-line'}>
+        {ac.callsign} turn {direction} {absTurn} degrees
+      </div>
+    );
   };
+
+  const aircraftWithCommands = aircraft.filter(ac => ac.pendingTurn !== 0);
+  const showSelectedWithoutCommand = selectedAircraft && selectedAircraft.pendingTurn === 0;
 
   return (
     <div className="bottom-controls">
-      <div className="command-display">{getCommandText()}</div>
+      <div className="command-display">
+        {!selectedAircraft && aircraftWithCommands.length === 0 && 'Select an aircraft to issue turn command'}
+        {showSelectedWithoutCommand && getCommandText(selectedAircraft, true)}
+        {aircraftWithCommands.map(ac => getCommandText(ac, selectedAircraft?.id === ac.id))}
+      </div>
       <div className="slider-container">
         <div className="slider-labels">
           <span>-30</span>
