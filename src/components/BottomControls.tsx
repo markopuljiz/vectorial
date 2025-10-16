@@ -25,11 +25,9 @@ export function BottomControls({ selectedAircraft, onHeadingChange }: BottomCont
     }
     
     const direction = turnDegrees > 0 ? 'right' : 'left';
-    const newHeading = Math.round(
-      ((selectedAircraft.originalDirection * 180 / Math.PI + turnDegrees) % 360 + 360) % 360
-    );
+    const absTurn = Math.abs(turnDegrees);
     
-    return `${selectedAircraft.callsign} turn ${direction} heading ${newHeading}`;
+    return `${selectedAircraft.callsign} turn ${direction} ${absTurn} degrees`;
   };
 
   return (
