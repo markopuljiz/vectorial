@@ -88,6 +88,53 @@ button, input, select, textarea {
   cursor: grabbing;
 }
 
+/* Test submit button */
+.test-submit-button {
+  padding: 10px 24px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.test-submit-button:hover {
+  background-color: #218838;
+}
+
+.test-submit-button:active {
+  background-color: #1e7e34;
+}
+
+.test-submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.test-submit-button:disabled:hover {
+  background-color: #6c757d;
+}
+
+@media (max-width: 600px) {
+  .command-and-submit-wrapper {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .test-submit-button {
+    padding: 8px 16px;
+    font-size: 13px;
+    width: 100%;
+    max-width: 150px;
+  }
+}
+
 /* Radar track styles */
 .radar-track {
   position: absolute;
@@ -182,13 +229,21 @@ button, input, select, textarea {
   border-top: 1px solid #555;
 }
 
+.command-and-submit-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 40px;
+}
+
 .command-display {
   color: #ffffff;
   font-size: 16px;
   font-family: monospace;
   font-weight: bold;
   text-align: center;
-  min-height: 40px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -330,6 +385,43 @@ button, input, select, textarea {
 
 .modal-button:active {
   background-color: #004494;
+}
+
+/* Mode Switch */
+.mode-switch-container {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #444;
+}
+
+.mode-switch {
+  display: flex;
+  gap: 0;
+  background-color: #222;
+  border-radius: 6px;
+  padding: 2px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.mode-button {
+  padding: 8px 24px;
+  border: none;
+  background-color: transparent;
+  color: #999;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.mode-button.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.mode-button:hover:not(.active) {
+  color: #ddd;
 }
 
 .setting-option {

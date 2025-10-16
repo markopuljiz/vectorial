@@ -7,9 +7,12 @@ interface BottomControlsProps {
   aircraft: Aircraft[];
   selectedAircraft: Aircraft | null;
   onHeadingChange: (degrees: number) => void;
+  mode: 'practice' | 'test';
+  submitted: boolean;
+  onSubmit: () => void;
 }
 
-export function BottomControls({ aircraft, selectedAircraft, onHeadingChange }: BottomControlsProps) {
+export function BottomControls({ aircraft, selectedAircraft, onHeadingChange, mode, submitted, onSubmit }: BottomControlsProps) {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     onHeadingChange(value);
@@ -42,10 +45,21 @@ export function BottomControls({ aircraft, selectedAircraft, onHeadingChange }: 
 
   return (
     <div className="bottom-controls">
-      <div className="command-display">
-        {!selectedAircraft && aircraftWithCommands.length === 0 && 'Select an aircraft to issue turn command'}
-        {showSelectedWithoutCommand && getCommandText(selectedAircraft, true)}
-        {aircraftWithCommands.map(ac => getCommandText(ac, selectedAircraft?.id === ac.id))}
+      <div className="command-and-submit-wrapper">
+        <div className="command-display">
+          {!selectedAircraft && aircraftWithCommands.length === 0 && 'Select an aircraft to issue turn command'}
+          {showSelectedWithoutCommand && getCommandText(selectedAircraft, true)}
+          {aircraftWithCommands.map(ac => getCommandText(ac, selectedAircraft?.id === ac.id))}
+        </div>
+        {mode === 'test' && (
+          <button 
+            className="test-submit-button"
+            onClick={onSubmit}
+            disabled={submitted}
+          >
+            {submitted ? 'Submitted' : 'Submit'}
+          </button>
+        )}
       </div>
       <div className="slider-container">
         <div className="slider-labels">
@@ -65,7 +79,7 @@ export function BottomControls({ aircraft, selectedAircraft, onHeadingChange }: 
           value={selectedAircraft?.pendingTurn || 0}
           step="5"
           onChange={handleSliderChange}
-          disabled={!selectedAircraft}
+          disabled={!selectedAircraft || (mode === 'test' && submitted)}
         />
       </div>
     </div>

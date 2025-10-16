@@ -12,6 +12,8 @@ interface RadarDisplayProps {
   panOffset: Position;
   setPanOffset: (offset: Position) => void;
   pixelsPerNM: number;
+  mode: 'practice' | 'test';
+  submitted: boolean;
 }
 
 export function RadarDisplay({ 
@@ -19,7 +21,9 @@ export function RadarDisplay({
   onAircraftSelect, 
   panOffset,
   setPanOffset,
-  pixelsPerNM 
+  pixelsPerNM,
+  mode,
+  submitted
 }: RadarDisplayProps) {
   const [sepLabelPosition, setSepLabelPosition] = useState(0);
   const isDragging = useRef(false);
@@ -116,7 +120,16 @@ export function RadarDisplay({
     );
   };
 
-  const renderLabel = (ac: Aircraft) => {
+  const checkLabelOverlap = (pos1: Position, pos2: Position, labelWidth = 80, labelHeight = 40) => {
+    return !(
+      pos1.x + labelWidth < pos2.x ||
+      pos2.x + labelWidth < pos1.x ||
+      pos1.y + labelHeight < pos2.y ||
+      pos2.y + labelHeight < pos1.y
+    );
+  };
+
+  const renderLabel = (ac: Aircraft, allAircraft: Aircraft[]) => {
     const offset = 70;
     const perpAngle1 = ac.direction + Math.PI / 2;
     const perpAngle2 = ac.direction - Math.PI / 2;
@@ -134,7 +147,43 @@ export function RadarDisplay({
       return Math.min(pos.x, window.innerWidth - pos.x, pos.y, window.innerHeight - pos.y);
     };
 
-    const finalPos = distToEdge(pos1) > distToEdge(pos2) ? pos1 : pos2;
+    let finalPos = distToEdge(pos1) > distToEdge(pos2) ? pos1 : pos2;
+
+    // Check for overlaps with other aircraft labels and adjust vertically if needed
+    const otherAircraft = allAircraft.filter(other => other.id !== ac.id);
+    for (const other of otherAircraft) {
+      const otherPerpAngle1 = other.direction + Math.PI / 2;
+      const otherPerpAngle2 = other.direction - Math.PI / 2;
+      
+      const otherPos1 = {
+        x: other.x + offset * Math.cos(otherPerpAngle1),
+        y: other.y + offset * Math.sin(otherPerpAngle1)
+      };
+      const otherPos2 = {
+        x: other.x + offset * Math.cos(otherPerpAngle2),
+        y: other.y + offset * Math.sin(otherPerpAngle2)
+      };
+      
+      const otherFinalPos = distToEdge(otherPos1) > distToEdge(otherPos2) ? otherPos1 : otherPos2;
+      
+      // If labels would overlap
+      if (checkLabelOverlap(finalPos, otherFinalPos)) {
+        // Position upper aircraft label above, lower aircraft label below
+        if (ac.y < other.y) {
+          // Current aircraft is above - place label above the track
+          finalPos = {
+            x: ac.x,
+            y: ac.y - offset
+          };
+        } else {
+          // Current aircraft is below - place label below the track
+          finalPos = {
+            x: ac.x,
+            y: ac.y + offset
+          };
+        }
+      }
+    }
 
     return (
       <div
@@ -158,8 +207,15 @@ export function RadarDisplay({
     const ac1 = aircraft[0];
     const ac2 = aircraft[1];
 
-    // Calculate for current directions
-    const closestApproach = calculateClosestApproach(ac1, ac2, ac1.direction, ac2.direction, pixelsPerNM);
+    // In test mode before submit: use original directions (no turns)
+    // In test mode after submit OR practice mode: use current directions (with turns)
+    const useOriginalDirections = mode === 'test' && !submitted;
+    
+    const direction1 = useOriginalDirections ? ac1.originalDirection : ac1.direction;
+    const direction2 = useOriginalDirections ? ac2.originalDirection : ac2.direction;
+
+    // Calculate closest approach based on the selected directions
+    const closestApproach = calculateClosestApproach(ac1, ac2, direction1, direction2, pixelsPerNM);
     const originalApproach = calculateClosestApproach(ac1, ac2, ac1.originalDirection, ac2.originalDirection, pixelsPerNM);
 
     if (!closestApproach) return null;
@@ -213,7 +269,7 @@ export function RadarDisplay({
 
     return (
       <>
-        {originalApproach && (
+        {originalApproach && mode === 'practice' && (
           <>
             {renderLine(ac1, originalApproach.aircraft1Pos, '#555', true)}
             {renderLine(ac2, originalApproach.aircraft2Pos, '#555', true)}
@@ -251,7 +307,7 @@ export function RadarDisplay({
       {renderHistoryDots()}
       {renderSEPTool()}
       {aircraft.map(renderAircraft)}
-      {aircraft.map(renderLabel)}
+      {aircraft.map(ac => renderLabel(ac, aircraft))}
     </div>
   );
 }

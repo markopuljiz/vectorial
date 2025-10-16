@@ -8,9 +8,11 @@ interface SettingsModalProps {
   currentSettings: Settings;
   onClose: () => void;
   onApply: (settings: Settings) => void;
+  mode: 'practice' | 'test';
+  setMode: (mode: 'practice' | 'test') => void;
 }
 
-export function SettingsModal({ isOpen, currentSettings, onClose, onApply }: SettingsModalProps) {
+export function SettingsModal({ isOpen, currentSettings, onClose, onApply, mode, setMode }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = useState(currentSettings);
 
   if (!isOpen) return null;
@@ -219,6 +221,23 @@ export function SettingsModal({ isOpen, currentSettings, onClose, onApply }: Set
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-body">
+          <div className="setting-option mode-switch-container">
+            <div className="mode-switch">
+              <button 
+                className={`mode-button ${mode === 'practice' ? 'active' : ''}`}
+                onClick={() => setMode('practice')}
+              >
+                Practice
+              </button>
+              <button 
+                className={`mode-button ${mode === 'test' ? 'active' : ''}`}
+                onClick={() => setMode('test')}
+              >
+                Test
+              </button>
+            </div>
+          </div>
+
           <div className="setting-option">
             <label>Speed difference: {localSettings.speedDiffMin} - {localSettings.speedDiffMax} kt</label>
             <div className="radio-grid">
