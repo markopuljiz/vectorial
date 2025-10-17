@@ -102,6 +102,17 @@ export function generateAircraftPair(
   // Time adjustment
   adjustTimeToCrossing(aircraft1, aircraft2, settings, pixelsPerNM);
 
+  // Make both aircraft fly at the same flight level
+  const commonFlightLevel = generateFlightLevel();
+  aircraft1.flightLevel = commonFlightLevel;
+  aircraft2.flightLevel = commonFlightLevel;
+
+  // Assign random SEP color from the 6 specified colors
+  const sepColors = ['#99D9EA', '#FF99B8', '#FFD18F', '#C540D4', '#8C8CFF', '#00DCFF'];
+  const randomColor = sepColors[Math.floor(Math.random() * sepColors.length)];
+  aircraft1.sepColor = randomColor;
+  aircraft2.sepColor = randomColor;
+
   // Pre-populate history dots
   populateHistory(aircraft1);
   populateHistory(aircraft2);
@@ -152,7 +163,8 @@ function createSingleAircraft(id: number): Aircraft {
     history: [],
     pendingTurn: 0,
     labelOffsetX: 0,
-    labelOffsetY: 0
+    labelOffsetY: 0,
+    sepColor: '#FFFFFF' // Placeholder, will be set by generateAircraftPair
   };
 }
 

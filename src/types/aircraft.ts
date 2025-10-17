@@ -15,6 +15,7 @@ export interface Aircraft {
   pendingTurn: number; // degrees
   labelOffsetX: number;
   labelOffsetY: number;
+  sepColor: string; // hex color for SEP tool
 }
 
 export interface Position {

@@ -245,8 +245,7 @@ export function RadarDisplay({
       );
     };
 
-    const colors = ['#ff69b4', '#87ceeb', '#dda0dd', '#90ee90'];
-    const color = colors[ac1.id % colors.length];
+    const color = ac1.sepColor;
 
     const midX = (closestApproach.aircraft1Pos.x + closestApproach.aircraft2Pos.x) / 2;
     const midY = (closestApproach.aircraft1Pos.y + closestApproach.aircraft2Pos.y) / 2;
