@@ -266,6 +266,18 @@ export function RadarDisplay({
     const distance = closestApproach.distance;
     const displayDistance = distance >= 11 ? Math.round(distance) : distance.toFixed(1);
 
+    // Determine feedback color in test mode after submit
+    let feedbackColor = color;
+    if (mode === 'test' && submitted) {
+      if (distance < 5) {
+        feedbackColor = '#ff4444'; // Red for fail
+      } else if (distance >= 5 && distance <= 10.9) {
+        feedbackColor = '#44ff44'; // Green for success
+      } else {
+        feedbackColor = '#ffff44'; // Yellow for waste
+      }
+    }
+
     return (
       <>
         {originalApproach && mode === 'practice' && (
@@ -281,7 +293,7 @@ export function RadarDisplay({
           style={{
             left: `${labelX + panOffset.x}px`,
             top: `${labelY + panOffset.y}px`,
-            color: color
+            color: feedbackColor
           }}
           onClick={() => setSepLabelPosition((sepLabelPosition + 1) % 4)}
         >

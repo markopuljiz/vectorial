@@ -7,15 +7,23 @@ import { RadarDisplay } from '../components/RadarDisplay';
 import { BottomControls } from '../components/BottomControls';
 import { SettingsModal } from '../components/SettingsModal';
 import { useGameState } from '../hooks/useGameState';
+import { useAuth } from '../hooks/useAuth';
+import { saveTestScore, supabase } from '../lib/supabase';
+import { calculateClosestApproach } from '../utils/physics';
 import '../App.css';
 
-export function GamePage() {
+interface GamePageProps {
+  onNavigateToStats: () => void;
+}
+
+export function GamePage({ onNavigateToStats }: GamePageProps) {
   const {
     aircraft,
     selectedAircraft,
     settings,
     pixelsPerNM,
     panOffset,
+    scenarioMetadata,
     selectAircraft,
     updateAircraftHeading,
     updateSettings,
@@ -25,6 +33,7 @@ export function GamePage() {
     zoomOut
   } = useGameState();
 
+  const { user, profile } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mode, setMode] = useState<'practice' | 'test'>('practice');
   const [submitted, setSubmitted] = useState(false);
@@ -44,9 +53,58 @@ export function GamePage() {
     // newScenario will be called automatically by the useEffect when settings change
   };
 
-  const handleSubmit = () => {
-    if (mode === 'test') {
+  const handleSubmit = async () => {
+    if (mode === 'test' && user && scenarioMetadata) {
       setSubmitted(true);
+      
+      // Calculate the final separation with current aircraft directions
+      if (aircraft.length === 2) {
+        const closestApproach = calculateClosestApproach(
+          aircraft[0],
+          aircraft[1],
+          aircraft[0].direction,
+          aircraft[1].direction,
+          pixelsPerNM
+        );
+        
+        if (closestApproach) {
+          const separation = closestApproach.distance;
+          
+          // Determine result based on separation
+          let result: 'success' | 'fail' | 'waste';
+          if (separation < 5) {
+            result = 'fail';
+          } else if (separation >= 5 && separation <= 10.9) {
+            result = 'success';
+          } else {
+            result = 'waste';
+          }
+          
+          // Fetch username from profile
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', user.id)
+              .single();
+            
+            const username = profile?.username || 'unknown';
+            
+            // Save to Supabase
+            await saveTestScore(
+              user.id,
+              username,
+              result,
+              scenarioMetadata.speedDifference,
+              scenarioMetadata.timeToCrossing,
+              scenarioMetadata.angle
+            );
+            console.log('Test score saved successfully');
+          } catch (error) {
+            console.error('Failed to save test score:', error);
+          }
+        }
+      }
     }
   };
 
@@ -58,8 +116,12 @@ export function GamePage() {
           newScenario();
         }}
         onSettings={() => setIsSettingsOpen(true)}
+        onStats={onNavigateToStats}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
+        mode={mode}
+        submitted={submitted}
+        profile={profile}
       />
       
       <RadarDisplay

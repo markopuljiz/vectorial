@@ -68,26 +68,26 @@ export function SettingsModal({ isOpen, currentSettings, onClose, onApply, mode,
     });
   };
 
-  const handleTimeToCrossingPreset = (preset: 'random' | '<6' | '6-9' | '>9') => {
+  const handleTimeToCrossingPreset = (preset: 'random' | '<5' | '5-8' | '>8') => {
     let min = 3;
-    let max = 15;
+    let max = 10;
     
     switch (preset) {
       case 'random':
         min = 3;
-        max = 15;
+        max = 10;
         break;
-      case '<6':
+      case '<5':
         min = 3;
-        max = 6;
+        max = 5;
         break;
-      case '6-9':
-        min = 6;
-        max = 9;
+      case '5-8':
+        min = 5;
+        max = 8;
         break;
-      case '>9':
-        min = 9;
-        max = 15;
+      case '>8':
+        min = 8;
+        max = 10;
         break;
     }
     
@@ -183,7 +183,7 @@ export function SettingsModal({ isOpen, currentSettings, onClose, onApply, mode,
     value, 
     label 
   }: { 
-    value: 'random' | '<6' | '6-9' | '>9'; 
+    value: 'random' | '<5' | '5-8' | '>8'; 
     label: string;
   }) => (
     <label className={localSettings.timeToCrossing === value ? 'selected' : ''}>
@@ -276,9 +276,9 @@ export function SettingsModal({ isOpen, currentSettings, onClose, onApply, mode,
             <label>Time to crossing: {localSettings.timeToCrossingMin} - {localSettings.timeToCrossingMax} min</label>
             <div className="radio-grid">
               <TimeToCrossingButton value="random" label="Random" />
-              <TimeToCrossingButton value="<6" label="<6 min" />
-              <TimeToCrossingButton value="6-9" label="6-9 min" />
-              <TimeToCrossingButton value=">9" label=">9 min" />
+              <TimeToCrossingButton value="<5" label="<5 min" />
+              <TimeToCrossingButton value="5-8" label="5-8 min" />
+              <TimeToCrossingButton value=">8" label=">8 min" />
             </div>
             <div className="dual-slider-container">
               <div className="dual-slider-wrapper">
@@ -286,19 +286,19 @@ export function SettingsModal({ isOpen, currentSettings, onClose, onApply, mode,
                   type="range"
                   className="dual-slider dual-slider-min"
                   min="3"
-                  max="15"
+                  max="10"
                   step="0.5"
                   value={localSettings.timeToCrossingMin}
                   onChange={(e) => handleTimeSliderChange(true, parseFloat(e.target.value))}
                   style={{
-                    background: `linear-gradient(to right, #333 0%, #333 ${((localSettings.timeToCrossingMin - 3) / 12) * 100}%, #4a9eff ${((localSettings.timeToCrossingMin - 3) / 12) * 100}%, #4a9eff ${((localSettings.timeToCrossingMax - 3) / 12) * 100}%, #333 ${((localSettings.timeToCrossingMax - 3) / 12) * 100}%, #333 100%)`
+                    background: `linear-gradient(to right, #333 0%, #333 ${((localSettings.timeToCrossingMin - 3) / 7) * 100}%, #4a9eff ${((localSettings.timeToCrossingMin - 3) / 7) * 100}%, #4a9eff ${((localSettings.timeToCrossingMax - 3) / 7) * 100}%, #333 ${((localSettings.timeToCrossingMax - 3) / 7) * 100}%, #333 100%)`
                   }}
                 />
                 <input
                   type="range"
                   className="dual-slider dual-slider-max"
                   min="3"
-                  max="15"
+                  max="10"
                   step="0.5"
                   value={localSettings.timeToCrossingMax}
                   onChange={(e) => handleTimeSliderChange(false, parseFloat(e.target.value))}

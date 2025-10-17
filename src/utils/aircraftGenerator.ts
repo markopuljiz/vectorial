@@ -1,13 +1,13 @@
 // Aircraft generation logic
 // Creates realistic scenarios based on settings
 
-import { Aircraft, Settings } from '../types/aircraft';
+import { Aircraft, Settings, ScenarioMetadata } from '../types/aircraft';
 import { calculateClosestApproach, calculateDistance, generateCallsign, generateFlightLevel } from './physics';
 
 export function generateAircraftPair(
   settings: Settings,
   pixelsPerNM: number
-): Aircraft[] {
+): { aircraft: Aircraft[], metadata: ScenarioMetadata } {
   // Initialize with dummy aircraft, will be replaced in loop
   let aircraft1: Aircraft = createSingleAircraft(1);
   let aircraft2: Aircraft = createSingleAircraft(2);
@@ -15,6 +15,8 @@ export function generateAircraftPair(
   let currentDistanceNM = 0;
   let angleOK = false;
   let iterations = 0;
+  let actualSpeedDifference = 0;
+  let actualAngle = 0;
 
   // Loop until geometric conditions are met
   while ((separationNM >= 5 || currentDistanceNM <= 20 || !angleOK) && iterations < 1000) {
@@ -43,6 +45,9 @@ export function generateAircraftPair(
     // Update speed in pixels/sec for both
     aircraft1.speed = (aircraft1.speedKnots / 3600) * pixelsPerNM;
     aircraft2.speed = (aircraft2.speedKnots / 3600) * pixelsPerNM;
+    
+    // Track actual speed difference
+    actualSpeedDifference = Math.abs(aircraft1.speedKnots - aircraft2.speedKnots);
 
     // Set direction towards common target
     const displayWidth = window.innerWidth;
@@ -77,6 +82,7 @@ export function generateAircraftPair(
       angleDiff = 2 * Math.PI - angleDiff; 
     }
     const angleDiffDegrees = angleDiff * (180 / Math.PI);
+    actualAngle = angleDiffDegrees;
 
     angleOK = checkAngle(settings, angleDiffDegrees);
 
@@ -117,7 +123,23 @@ export function generateAircraftPair(
   populateHistory(aircraft1);
   populateHistory(aircraft2);
 
-  return [aircraft1, aircraft2];
+  // Calculate actual time to crossing
+  const cpa = calculateClosestApproach(
+    aircraft1,
+    aircraft2,
+    aircraft1.originalDirection,
+    aircraft2.originalDirection,
+    pixelsPerNM
+  );
+  const actualTimeToCrossing = cpa ? cpa.time / 60 : 0; // Convert seconds to minutes
+
+  const metadata: ScenarioMetadata = {
+    speedDifference: Math.round(actualSpeedDifference),
+    angle: Math.round(actualAngle),
+    timeToCrossing: parseFloat(actualTimeToCrossing.toFixed(1))
+  };
+
+  return { aircraft: [aircraft1, aircraft2], metadata };
 }
 
 function createSingleAircraft(id: number): Aircraft {

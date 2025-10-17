@@ -2,7 +2,7 @@
 // Hooks let you use React features without writing classes
 
 import { useState, useCallback } from 'react';
-import { Aircraft, Settings } from '../types/aircraft';
+import { Aircraft, Settings, ScenarioMetadata } from '../types/aircraft';
 import { generateAircraftPair } from '../utils/aircraftGenerator';
 
 export function useGameState() {
@@ -13,6 +13,7 @@ export function useGameState() {
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft | null>(null);
   const [pixelsPerNM, setPixelsPerNM] = useState(7);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [scenarioMetadata, setScenarioMetadata] = useState<ScenarioMetadata | null>(null);
   
   const [settings, setSettings] = useState<Settings>({
     speedDiff: 'random',
@@ -23,7 +24,7 @@ export function useGameState() {
     angleMax: 180,
     timeToCrossing: 'random',
     timeToCrossingMin: 3,
-    timeToCrossingMax: 12
+    timeToCrossingMax: 10
   });
 
   // useCallback memoizes functions so they don't get recreated on every render
@@ -38,8 +39,9 @@ export function useGameState() {
 
   const newScenario = useCallback(() => {
     const scale = updateScale();
-    const newAircraft = generateAircraftPair(settings, scale);
+    const { aircraft: newAircraft, metadata } = generateAircraftPair(settings, scale);
     setAircraft(newAircraft);
+    setScenarioMetadata(metadata);
     setSelectedAircraft(null);
     setPanOffset({ x: 0, y: 0 });
   }, [settings, updateScale]);
@@ -141,6 +143,7 @@ export function useGameState() {
     settings,
     pixelsPerNM,
     panOffset,
+    scenarioMetadata,
     setAircraft,
     selectAircraft,
     updateAircraftHeading,

@@ -23,10 +23,12 @@ export interface Profile {
 export interface Score {
   id: string;
   user_id: string;
+  username: string | null;
   scenario_type: string;
-  time_to_solve: number; // seconds
-  separation_maintained: boolean;
-  min_separation: number; // nautical miles
+  result: 'success' | 'fail' | 'waste' | null;
+  speed_difference: number | null;
+  time_to_crossing: number | null;
+  angle: number | null;
   created_at: string;
 }
 
@@ -36,4 +38,35 @@ export interface Session {
   started_at: string;
   ended_at: string | null;
   scenarios_completed: number;
+}
+
+// Function to save test score
+export async function saveTestScore(
+  userId: string,
+  username: string,
+  result: 'success' | 'fail' | 'waste',
+  speedDifference: number,
+  timeToCrossing: number,
+  angle: number
+) {
+  const { data, error } = await supabase
+    .from('scores')
+    .insert({
+      user_id: userId,
+      username,
+      scenario_type: 'test',
+      result,
+      speed_difference: speedDifference,
+      time_to_crossing: timeToCrossing,
+      angle
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error saving test score:', error);
+    throw error;
+  }
+
+  return data;
 }

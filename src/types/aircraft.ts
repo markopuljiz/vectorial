@@ -30,7 +30,7 @@ export interface Settings {
   angle: 'random' | 'sharp' | 'crossing' | 'opposite' | 'custom';
   angleMin: number; // degrees
   angleMax: number; // degrees
-  timeToCrossing: 'random' | '<6' | '6-9' | '>9' | 'custom';
+  timeToCrossing: 'random' | '<5' | '5-8' | '>8' | 'custom';
   timeToCrossingMin: number; // minutes
   timeToCrossingMax: number; // minutes
 }
@@ -48,4 +48,20 @@ export interface GameState {
   settings: Settings;
   pixelsPerNM: number;
   panOffset: Position;
+}
+
+export interface ScenarioMetadata {
+  speedDifference: number; // knots
+  angle: number; // degrees
+  timeToCrossing: number; // minutes
+}
+
+export type UserType = 'trainee' | 'course_manager' | 'admin';
+
+export interface Profile {
+  id: string;
+  username: string;
+  full_name: string | null;
+  user_type: UserType;
+  created_at: string;
 }
