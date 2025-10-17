@@ -421,50 +421,52 @@ export function StatsPage({ onBack }: StatsPageProps) {
             <p>No test scores recorded yet.</p>
           )}
           {!loading && !error && userStats.length > 0 && (
-            <table className="stats-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>
-                    Name{renderSortIcon('username')}
-                  </th>
-                  <th onClick={() => handleSort('totalSubmitted')} style={{ cursor: 'pointer' }}>
-                    Total Submitted{renderSortIcon('totalSubmitted')}
-                  </th>
-                  <th onClick={() => handleSort('successPercent')} style={{ cursor: 'pointer' }}>
-                    % Success{renderSortIcon('successPercent')}
-                  </th>
-                  <th onClick={() => handleSort('failPercent')} style={{ cursor: 'pointer' }}>
-                    % Fail{renderSortIcon('failPercent')}
-                  </th>
-                  <th onClick={() => handleSort('wastePercent')} style={{ cursor: 'pointer' }}>
-                    % Waste{renderSortIcon('wastePercent')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const totalStats = calculateTotalStats();
-                  return totalStats && (
-                    <tr className="total-row">
-                      <td className="username-cell total-cell">{totalStats.username}</td>
-                      <td className="number-cell total-cell">{totalStats.totalSubmitted}</td>
-                      <td className="percent-cell success total-cell">{totalStats.successPercent.toFixed(1)}%</td>
-                      <td className="percent-cell fail total-cell">{totalStats.failPercent.toFixed(1)}%</td>
-                      <td className="percent-cell waste total-cell">{totalStats.wastePercent.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })()}
-                {getSortedStats().map((stats) => (
-                  <tr key={stats.username}>
-                    <td className="username-cell">{stats.username}</td>
-                    <td className="number-cell">{stats.totalSubmitted}</td>
-                    <td className="percent-cell success">{stats.successPercent.toFixed(1)}%</td>
-                    <td className="percent-cell fail">{stats.failPercent.toFixed(1)}%</td>
-                    <td className="percent-cell waste">{stats.wastePercent.toFixed(1)}%</td>
+            <div className="table-wrapper">
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>
+                      Name{renderSortIcon('username')}
+                    </th>
+                    <th onClick={() => handleSort('totalSubmitted')} style={{ cursor: 'pointer' }}>
+                      Total Submitted{renderSortIcon('totalSubmitted')}
+                    </th>
+                    <th onClick={() => handleSort('successPercent')} style={{ cursor: 'pointer' }}>
+                      % Success{renderSortIcon('successPercent')}
+                    </th>
+                    <th onClick={() => handleSort('failPercent')} style={{ cursor: 'pointer' }}>
+                      % Fail{renderSortIcon('failPercent')}
+                    </th>
+                    <th onClick={() => handleSort('wastePercent')} style={{ cursor: 'pointer' }}>
+                      % Waste{renderSortIcon('wastePercent')}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const totalStats = calculateTotalStats();
+                    return totalStats && (
+                      <tr className="total-row">
+                        <td className="username-cell total-cell">{totalStats.username}</td>
+                        <td className="number-cell total-cell">{totalStats.totalSubmitted}</td>
+                        <td className="percent-cell success total-cell">{totalStats.successPercent.toFixed(1)}%</td>
+                        <td className="percent-cell fail total-cell">{totalStats.failPercent.toFixed(1)}%</td>
+                        <td className="percent-cell waste total-cell">{totalStats.wastePercent.toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })()}
+                  {getSortedStats().map((stats) => (
+                    <tr key={stats.username}>
+                      <td className="username-cell">{stats.username}</td>
+                      <td className="number-cell">{stats.totalSubmitted}</td>
+                      <td className="percent-cell success">{stats.successPercent.toFixed(1)}%</td>
+                      <td className="percent-cell fail">{stats.failPercent.toFixed(1)}%</td>
+                      <td className="percent-cell waste">{stats.wastePercent.toFixed(1)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

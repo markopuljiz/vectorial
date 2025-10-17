@@ -949,3 +949,127 @@ button, input, select, textarea {
   color: #aaa;
   font-size: 12px;
 }
+
+/* Table wrapper for horizontal scrolling */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile responsive styles for Stats page */
+@media (max-width: 768px) {
+  .stats-page {
+    padding: 15px;
+  }
+
+  .stats-container {
+    padding: 15px;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .stats-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  .stats-header h1 {
+    font-size: 24px;
+  }
+
+  .back-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .filters-section {
+    padding: 15px;
+  }
+
+  .filters-section h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .filter-controls {
+    gap: 12px;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-toggle-button,
+  .clear-filters-button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .date-picker-wrapper {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .date-input-display {
+    width: 100%;
+  }
+
+  .stats-table {
+    min-width: 600px;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .stats-table th {
+    font-size: 12px;
+  }
+
+  .total-cell {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-page {
+    padding: 10px;
+  }
+
+  .stats-container {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .stats-header h1 {
+    font-size: 20px;
+  }
+
+  .filters-section {
+    padding: 12px;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .stats-table th {
+    font-size: 11px;
+  }
+
+  .total-cell {
+    font-size: 13px;
+  }
+}
